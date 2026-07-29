@@ -1,63 +1,45 @@
-from pathlib import Path
 import unittest
-
-PORTAL = Path(__file__).with_name("pokale-meier-erfolgsportal.html")
+from pathlib import Path
 
 
 class PortalStructureTests(unittest.TestCase):
-    def setUp(self):
-        self.html = PORTAL.read_text(encoding="utf-8")
+    @classmethod
+    def setUpClass(cls):
+        cls.root = Path(__file__).parent
+        cls.html = (cls.root / 'pokale-meier-erfolgsportal.html').read_text(encoding='utf-8')
+        cls.core = (cls.root / 'portal-core.js').read_text(encoding='utf-8')
 
-    def test_portal_has_core_navigation_for_internal_work(self):
-        for label in ["Übersicht", "Kunden", "Phasen", "Termine", "Auszeichnungen", "Empfehlungen", "Vereinbarungen"]:
-            self.assertIn(label, self.html)
+    def test_keeps_pokale_meier_branding_and_local_preview_asset(self):
+        self.assertIn('assets/pokale-meier-logo.svg', self.html)
+        self.assertIn('#0B233B', self.html)
+        self.assertIn('#F05A28', self.html)
+        self.assertIn('© 2026 | Meier Trophy GmbH', self.html)
 
-    def test_portal_models_the_three_success_phases(self):
-        for phase in ["Bronze", "Silber", "Leuchtfeuer"]:
-            self.assertIn(phase, self.html)
-        self.assertIn('id="phase-visualization"', self.html)
+    def test_dashboard_is_scoped_to_active_customers(self):
+        self.assertIn('PortalCore.activeCustomers(workspace)', self.html)
+        self.assertIn('id="active-customer-list"', self.html)
+        self.assertIn('dashboard-search', self.html)
+        self.assertIn('JTL-Kundennummer', self.html)
 
-    def test_portal_allows_adding_phases_and_appointments(self):
-        self.assertIn('id="add-phase"', self.html)
-        self.assertIn('id="add-appointment"', self.html)
-        self.assertIn('id="appointment-phase"', self.html)
-        self.assertIn('localStorage', self.html)
-
-    def test_gen1_records_are_real_local_data_objects(self):
-        for record_type in ["customers", "awards", "referrals", "agreements"]:
-            self.assertIn(record_type, self.html)
-        for dialog in ["customer-dialog", "award-dialog", "referral-dialog", "agreement-dialog"]:
-            self.assertIn(f'id="{dialog}"', self.html)
-
-    def test_gen1_has_renderers_and_add_actions_for_each_record_area(self):
-        for marker in ["renderCustomers", "renderAwards", "renderReferrals", "renderAgreements",
-                       "add-customer", "add-award", "add-referral", "add-agreement"]:
+    def test_customer_workspace_contains_miro_addresses_contact_and_agreement_fields(self):
+        for marker in ['Miro-Board öffnen', 'Lieferadresse', 'Rechnungsadresse', 'Ansprechpartner', 'Versandvereinbarung', 'Einzelversand']:
             self.assertIn(marker, self.html)
 
-    def test_bronze_has_the_four_ordered_consulting_appointments(self):
-        for marker in [
-            "Onboarding: Dein Weg zum Kunden-Erfolgssystem",
-            "Daten-Checkup: Deine erste Award-Stufe",
-            "Follow Up: Deine ersten Übergaben im Erfolgs-System",
-            "Strategietermin: Die Stufen deines Erfolgs-Systems",
-            "bronzeAppointments",
-        ]:
-            self.assertIn(marker, self.html)
+    def test_local_workspace_has_explicit_backup_and_security_boundary(self):
+        self.assertIn('Lokale Sicherung exportieren', self.html)
+        self.assertIn("pm-erfolgsportal-workspace-v1", self.html)
+        self.assertIn('noch keine sichere Anmeldung', self.html)
+        self.assertNotIn('MIRO_ACCESS_TOKEN', self.html)
+        self.assertNotIn('client_secret', self.html.lower())
 
-    def test_appointment_documents_have_editable_fields_and_persist_locally(self):
-        for marker in [
-            "Termin-Dokument", "fieldDefinitions", "appointmentNotes", "Notizen speichern",
-            "localStorage", "Termin erledigen",
-        ]:
-            self.assertIn(marker, self.html)
-
-    def test_sequential_unlocking_and_silver_lock_are_visible(self):
-        for marker in [
-            "Nächsten Termin buchen", "Termin freischalten", "Silber starten", "Bronze komplett abschließen",
-            "locked", "isBronzeComplete",
-        ]:
-            self.assertIn(marker, self.html)
+    def test_business_logic_is_separate_from_browser_ui(self):
+        self.assertIn('createWorkspace', self.core)
+        self.assertIn('createCustomer', self.core)
+        self.assertIn('updateCustomer', self.core)
+        self.assertIn('customerStatuses', self.core)
+        self.assertIn("roles,", self.core)
+        self.assertIn("<script src=\"portal-core.js\">", self.html)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
