@@ -1,0 +1,14 @@
+# Python test artifacts
+__pycache__/
+*.py[cod]
+
+# Local environment and editor files
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+
+# Local portal exports / browser data backups
+*.local.json
+*.backup
