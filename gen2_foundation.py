@@ -153,6 +153,20 @@ class FoundationStore:
                     actor_user_id INTEGER REFERENCES users(id), action TEXT NOT NULL,
                     payload TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS award_programs (
+                    id INTEGER PRIMARY KEY, organisation_id INTEGER NOT NULL UNIQUE REFERENCES organisations(id),
+                    name TEXT NOT NULL, created_by INTEGER NOT NULL REFERENCES users(id),
+                    created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS award_stages (
+                    id INTEGER PRIMARY KEY, award_program_id INTEGER NOT NULL REFERENCES award_programs(id),
+                    position INTEGER NOT NULL CHECK(position BETWEEN 1 AND 10), name TEXT NOT NULL,
+                    success_points INTEGER NOT NULL CHECK(success_points >= 0), status TEXT NOT NULL DEFAULT 'draft',
+                    created_by INTEGER NOT NULL REFERENCES users(id), created_at TEXT NOT NULL, published_at TEXT,
+                    UNIQUE(award_program_id, position)
+                );
+                CREATE INDEX IF NOT EXISTS idx_award_stages_visible
+                    ON award_stages(award_program_id, status, position);
             ''')
 
     @staticmethod
@@ -440,4 +454,77 @@ class FoundationStore:
                   AND o.active = 1 AND o.public_profile_enabled = 1
                 ORDER BY e.verified_at DESC, e.id DESC LIMIT ?
             ''', (bounded_limit,)).fetchall()
+        return [dict(row) for row in rows]
+
+    def create_award_program(self, actor_id: int, organisation_id: int, name: str) -> dict[str, Any]:
+        """Create the one centrally administered award program for an organisation."""
+        self._require(actor_id, 'award_programs.write')
+        self.organisation(organisation_id)
+        if not _text(name):
+            raise ValidationError('Ein Name für das Award-Programm ist erforderlich.')
+        now = _now()
+        with self._connection() as conn:
+            if conn.execute('SELECT 1 FROM award_programs WHERE organisation_id = ?', (organisation_id,)).fetchone():
+                raise ValidationError('Für diese Organisation besteht bereits ein Award-Programm.')
+            cursor = conn.execute(
+                'INSERT INTO award_programs (organisation_id, name, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?)',
+                (organisation_id, _text(name), actor_id, now, now),
+            )
+            self._audit(conn, organisation_id, actor_id, 'award_program.created', {'award_program_id': cursor.lastrowid})
+            row = conn.execute('SELECT * FROM award_programs WHERE id = ?', (cursor.lastrowid,)).fetchone()
+        return dict(row)
+
+    def add_award_stage(self, actor_id: int, award_program_id: int, position: int, name: str, success_points: int) -> dict[str, Any]:
+        """Add a draft stage; only the internal award board controls its publication."""
+        self._require(actor_id, 'award_programs.write')
+        if not isinstance(position, int) or not 1 <= position <= 10:
+            raise ValidationError('Die Stufenreihenfolge muss zwischen 1 und 10 liegen.')
+        if not _text(name):
+            raise ValidationError('Ein Stufenname ist erforderlich.')
+        if not isinstance(success_points, int) or success_points < 0:
+            raise ValidationError('Der Punktwert muss eine nicht-negative ganze Zahl sein.')
+        now = _now()
+        with self._connection() as conn:
+            program = conn.execute('SELECT * FROM award_programs WHERE id = ?', (award_program_id,)).fetchone()
+            if not program:
+                raise ValidationError('Award-Programm wurde nicht gefunden.')
+            if conn.execute('SELECT 1 FROM award_stages WHERE award_program_id = ? AND position = ?', (award_program_id, position)).fetchone():
+                raise ValidationError('Diese Stufenreihenfolge ist bereits belegt.')
+            cursor = conn.execute(
+                'INSERT INTO award_stages (award_program_id, position, name, success_points, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+                (award_program_id, position, _text(name), success_points, actor_id, now),
+            )
+            self._audit(conn, program['organisation_id'], actor_id, 'award_stage.created', {
+                'award_program_id': award_program_id, 'award_stage_id': cursor.lastrowid, 'position': position,
+            })
+            row = conn.execute('SELECT * FROM award_stages WHERE id = ?', (cursor.lastrowid,)).fetchone()
+        return dict(row)
+
+    def publish_award_stage(self, actor_id: int, award_stage_id: int) -> dict[str, Any]:
+        self._require(actor_id, 'award_programs.write')
+        now = _now()
+        with self._connection() as conn:
+            stage = conn.execute('''
+                SELECT s.*, p.organisation_id FROM award_stages s
+                JOIN award_programs p ON p.id = s.award_program_id WHERE s.id = ?
+            ''', (award_stage_id,)).fetchone()
+            if not stage:
+                raise ValidationError('Award-Stufe wurde nicht gefunden.')
+            if stage['status'] == 'published':
+                raise ValidationError('Award-Stufe ist bereits veröffentlicht.')
+            conn.execute("UPDATE award_stages SET status = 'published', published_at = ? WHERE id = ?", (now, award_stage_id))
+            self._audit(conn, stage['organisation_id'], actor_id, 'award_stage.published', {'award_stage_id': award_stage_id})
+            row = conn.execute('SELECT * FROM award_stages WHERE id = ?', (award_stage_id,)).fetchone()
+        return dict(row)
+
+    def visible_award_stages(self, organisation_id: int) -> list[dict[str, Any]]:
+        """Customer-safe projection: draft and other tenants' stages never leak."""
+        self.organisation(organisation_id)
+        with self._connection() as conn:
+            rows = conn.execute('''
+                SELECT s.id, s.position, s.name, s.success_points, s.status, s.published_at
+                FROM award_stages s JOIN award_programs p ON p.id = s.award_program_id
+                WHERE p.organisation_id = ? AND s.status = 'published'
+                ORDER BY s.position
+            ''', (organisation_id,)).fetchall()
         return [dict(row) for row in rows]

@@ -6,46 +6,57 @@ class PortalStructureTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.root = Path(__file__).parent
-        cls.html = (cls.root / 'pokale-meier-erfolgsportal.html').read_text(encoding='utf-8')
-        cls.core = (cls.root / 'portal-core.js').read_text(encoding='utf-8')
+        cls.landing = (cls.root / 'index.html').read_text(encoding='utf-8')
+        cls.customer_pages = {
+            'dashboard': 'kundenansicht.html',
+            'etappen': 'kunden-etappen.html',
+            'awards': 'kunden-awards.html',
+            'kunden': 'kunden-erfolge.html',
+            'bestenliste': 'kunden-bestenliste.html',
+            'empfehlungen': 'kunden-empfehlungen.html',
+            'partner': 'kunden-partner.html',
+            'wissen': 'kunden-wissen.html',
+            'profil': 'kunden-profil.html',
+        }
 
-    def test_keeps_pokale_meier_branding_and_local_preview_asset(self):
-        self.assertIn('assets/pokale-meier-logo.svg', self.html)
-        self.assertIn('#0B233B', self.html)
-        self.assertIn('#F05A28', self.html)
-        self.assertIn('© 2026 | Meier Trophy GmbH', self.html)
+    def test_public_landingpage_explains_process_and_routes_application(self):
+        for marker in ['Jetzt bewerben', 'Beratung', 'Stufenprogramm', 'Impact Frames', 'Nachweis', 'Freigabe']:
+            self.assertIn(marker, self.landing)
+        self.assertIn('https://www.pokale-meier.de/impact-frames', self.landing)
+        self.assertIn('Dein Einstieg', self.landing)
+        self.assertIn('Kundenportal erleben', self.landing)
 
-    def test_dashboard_is_scoped_to_active_customers(self):
-        self.assertIn('PortalCore.activeCustomers(workspace)', self.html)
-        self.assertIn('id="active-customer-list"', self.html)
-        self.assertIn('dashboard-search', self.html)
-        self.assertIn('JTL-Kundennummer', self.html)
+    def test_public_gallery_uses_the_two_approved_reference_images(self):
+        for image in ['trusted-advisor-scaling-champions.jpg', 'dirk-kreuter-sales-champion.jpg']:
+            self.assertTrue((self.root / 'assets' / image).is_file(), image)
+            self.assertIn(f'assets/{image}', self.landing)
 
-    def test_customer_workspace_contains_miro_addresses_contact_and_agreement_fields(self):
-        for marker in ['Miro-Board öffnen', 'Lieferadresse', 'Rechnungsadresse', 'Ansprechpartner', 'Versandvereinbarung', 'Einzelversand']:
-            self.assertIn(marker, self.html)
+    def test_customer_demo_is_real_multpage_navigation(self):
+        for page in self.customer_pages.values():
+            content = (self.root / page).read_text(encoding='utf-8')
+            self.assertIn('demo.css', content)
+            self.assertIn('Kundenansicht', content)
+        self.assertIn('kundenansicht.html', self.landing)
 
-    def test_local_workspace_has_explicit_backup_and_security_boundary(self):
-        self.assertIn('Lokale Sicherung exportieren', self.html)
-        self.assertIn("pm-erfolgsportal-workspace-v1", self.html)
-        self.assertIn('noch keine sichere Anmeldung', self.html)
-        self.assertNotIn('MIRO_ACCESS_TOKEN', self.html)
-        self.assertNotIn('client_secret', self.html.lower())
+    def test_customer_navigation_covers_the_approved_workspaces(self):
+        dashboard = (self.root / self.customer_pages['dashboard']).read_text(encoding='utf-8')
+        for target in self.customer_pages.values():
+            self.assertIn(target, dashboard)
+        for marker in ['Leuchtfeuer-Score', 'Mein Fortschritt', 'Dein nächster Termin', 'Nächste sinnvolle Aktion']:
+            self.assertIn(marker, dashboard)
 
-    def test_business_logic_is_separate_from_browser_ui(self):
-        self.assertIn('createWorkspace', self.core)
-        self.assertIn('createCustomer', self.core)
-        self.assertIn('updateCustomer', self.core)
-        self.assertIn('customerStatuses', self.core)
-        self.assertIn("roles,", self.core)
-        self.assertIn("<script src=\"portal-core.js\">", self.html)
+    def test_customer_successes_keep_upcoming_and_confirmed_records_separate(self):
+        content = (self.root / self.customer_pages['kunden']).read_text(encoding='utf-8')
+        for marker in ['Kommende Erfolgskunden', 'Bisherige Erfolgskunden', 'Erfolgskunden hinzufügen', 'Nachweis eingereicht', 'Interne Prüfung']:
+            self.assertIn(marker, content)
 
-    def test_gamification_is_prepared_without_fake_rankings(self):
-        for marker in ['Bestenliste', 'Kundenaufträge · Monat', 'Kundenaufträge · Jahr', 'Kundenaufträge · Gesamt', 'Platz 1', 'Freischaltbare Belohnungen']:
-            self.assertIn(marker, self.html)
-        self.assertIn('leaderboards', self.core)
-        self.assertIn('salesAttribution', self.core)
-        self.assertIn('Noch keine Datengrundlage', self.html)
+    def test_public_preview_does_not_claim_a_real_login_or_data_processing(self):
+        contents = [self.landing]
+        contents.extend((self.root / page).read_text(encoding='utf-8') for page in self.customer_pages.values())
+        for content in contents:
+            self.assertIn('statische demo', content.lower())
+            self.assertNotIn('MIRO_ACCESS_TOKEN', content)
+            self.assertNotIn('client_secret', content.lower())
 
 
 if __name__ == '__main__':

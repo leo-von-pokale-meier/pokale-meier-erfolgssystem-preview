@@ -10,6 +10,41 @@
 
 ---
 
+## 0. Ergänzung: Öffentliche Landingpage und verbindliche Ansichtsgrenzen
+
+Die drei Ansichten bleiben bewusst getrennt und erhalten je einen klaren Zweck:
+
+| Ansicht | Zielgruppe / Zweck | Darf nicht enthalten |
+|---|---|---|
+| **Öffentliche Landingpage** | Vertriebliche Erklärung des Erfolgsprozesses, qualifizierte Bewerbung und freigegebener Social Proof. | Login, Kundenakten, interne Kennzahlen, nicht freigegebene Erfolge oder Nachweise. |
+| **Kundenportal** | Geschützter täglicher Arbeitsraum einer einzelnen Portal-Kundenorganisation. | Öffentliche Vermarktung, fremde Kundenakten oder interne Prüfdetails. |
+| **Interne Übersicht** | Steuerung, Prüfung, Freigabe, Konfiguration und auditierter Kontextwechsel. | Öffentliche Darstellung als Produkt-Landingpage oder unkontrollierte Kundenselbstverwaltung. |
+
+### 0.1 Öffentliche Landingpage: Vertriebsziel und verbindliche Inhalte
+
+Die bisherige öffentliche Vorschau ist in ihrer Struktur ein internes Demo-Dashboard und wird durch eine echte Landingpage ersetzt. Sie vermarktet den **Erfolgsprozess** – nicht eine isolierte Software-Funktion und nicht den Verkauf einzelner Pokale.
+
+1. **Hero:** Für wen der Prozess gedacht ist, welches Ergebnis er ermöglicht und ein primärer CTA **„Jetzt bewerben“**.
+2. **Problem → Prozess → Ergebnis:** Erklären, wie aus belegbaren Kundenerfolgen ein sichtbares System für Vertrauen, Bindung, Upsell und Empfehlungen wird.
+3. **Ablauf in verständlichen Etappen:** Beratung, individuelles Stufenprogramm, Umsetzung der Impact Frames, Nachweise/Prüfung, sichtbare Erfolge und Empfehlungen.
+4. **Erfolgs-Galerie:** Ausschließlich gesondert freigegebene Referenzbilder, Zitate bzw. anonymisierte Fallbeispiele. Kein Bild, Name, Logo oder Ergebnis ohne dokumentierte Veröffentlichungseinwilligung.
+5. **Erklärvideo:** Ein klar platzierter Videobereich zum Prozess. Bis ein final freigegebenes Video samt URL, Vorschaubild, Untertiteln und Veröffentlichungsrechten vorliegt, wird kein fremdes oder erfundenes Video eingebettet.
+6. **Qualifizierung statt Kontaktstreuverlust:** „Jetzt bewerben“ führt später in eine definierte Bewerbungsstrecke mit Mindestvoraussetzungen und anschließender Prüfung; die Ziel-URL bzw. das Formular ist vor Veröffentlichung festzulegen.
+7. **Vertrauen und Abgrenzung:** Sichtbar erklären, dass Erfolge erst nach Nachweis und Freigabe gezeigt werden. Die Landingpage darf die Ranglisten-/Galerie-Mechanik verständlich darstellen, aber keine vertraulichen Daten offenlegen.
+
+### 0.2 Ausspielung und Marke
+
+Die Landingpage wird als eigenständiges Angebot der **Erfolgssoftware** betrieben und muss nicht in die Informationsarchitektur von `pokale-meier.de` eingebettet sein. Für die laufende Team-Vorschau bleibt GitHub Pages geeignet. Vor dem Vertriebsstart wird eine eigene, zur Erfolgssoftware passende Domain sowie die Trennung zwischen öffentlicher Landingpage und geschützter App festgelegt. Die technische Hosting-, Datenbank- und Sicherheitsentscheidung bleibt ausdrücklich nach der fachlichen Freigabe.
+
+### 0.3 Festgestellter Abgleichstand
+
+- Die bestehende `kundenansicht.html` erfüllt die beabsichtigte Sprache und Teile von Dashboard, Etappen, Awards, Rangliste und Wissensspeicher, ist aber ein Anker-Onepager. Sie erfüllt damit die verbindliche Navigation mit echten Unterseiten aus Kapitel 2 **noch nicht**.
+- „Meine Kunden“ mit kommenden/bisherigen Erfolgskunden, Erfolgskunden-Akten, Empfehlungen/Affiliate, Partnern sowie Nutzer-Menü-Unterseiten fehlen in der statischen Kundenansicht noch vollständig.
+- Die interne Übersicht enthält einen sinnvollen Cockpit- und Prüfungsansatz, aber noch nicht die vollständige Kundenverwaltung, den auditierbaren Kontextwechsel und die zentrale Programm- und Stufenverwaltung.
+- Die öffentliche Seite ist heute eine Produkt-/Demo-Übersicht, keine vertriebsorientierte Landingpage. Hero-CTA, Prozess-Erklärung, Erfolgs-Galerie und Erklärvideo fehlen.
+
+---
+
 ## 1. Verbindliche Begriffe und Abgrenzung
 
 | Begriff | Bedeutung |
@@ -364,3 +399,22 @@ Die Inhaltsversion gilt als vollständig, wenn folgende Nutzerwege ohne Lücke b
 **Versionsregel:** Dieses Fachkonzept ist die verbindliche Quelle für die vollständige Portalversion. Jede spätere Konzept-, UI- oder technische Versionsänderung muss die Anforderungen aus Kapitel 7 – Leuchtfeuer-Score, Kunden-Einzelansicht, Top-3-Status, bestätigte Kundenerfolge, Award-Vorschau, Punkte des Ereignisses und Partner-Link – erhalten oder eine explizit dokumentierte fachliche Änderung enthalten.
 
 **Bewusste Nicht-Entscheidung bis zur technischen Umsetzung:** Konkrete technische Framework-Wechsel, Hosting und externe Integrationen werden nicht vorgezogen. Erst diese fachliche Fassung inklusive der vorläufigen Punktelogik freigeben, dann wird sie auf der vorhandenen Gen-2-Basis implementiert.
+
+---
+
+## 12. Abnahmeblock · statische klickbare Vorschau (Gen 2)
+
+Diese Abnahme betrifft ausschließlich die öffentliche GitHub-Pages-Demo. Sie ist kein Login, keine Datenbank und keine Vorwegnahme der Sicherheitsarchitektur der Live-App.
+
+| Prüfpunkt | Umsetzung in der Vorschau | Abnahme |
+|---|---|---|
+| Öffentlicher Vertriebseinstieg | `index.html` erklärt Beratung, Stufenprogramm, Impact Frames, Nachweis und Freigabe; die CTA lautet exakt „Jetzt bewerben“. | erfüllt |
+| Bewerbungsweg | Alle CTA führen vorläufig auf `https://www.pokale-meier.de/impact-frames`; ein eigener Zoho-Formularprozess folgt erst in der Live-App. | erfüllt |
+| Erklärvideo | Sichtbarer, eindeutig als YouTube-Platzhalter markierter Video-Bereich. | erfüllt |
+| Erfolgs-Galerie | Die freigegebenen Motive „Trusted Advisor – Scaling Champions“ und „Sales Champion Award“ liegen als lokale Web-Assets vor und werden auf der Landingpage angezeigt. | erfüllt |
+| Kundenansicht ohne Onepager | Die Kunden-Demo besitzt echte, untereinander verlinkte Seiten für Fortschritt, Etappen, Awards, Meine Kunden, Bestenliste, Empfehlungen, Partner, Wissensspeicher und Profil. | erfüllt |
+| Erfolgskunden-Logik | „Kommende Erfolgskunden“ und „Bisherige Erfolgskunden“ sind in getrennten Karten dargestellt; Nachweis, interne Prüfung und Veröffentlichungsfreigabe bleiben unterscheidbar. | erfüllt |
+| Rollen- und Freigabegrenze | Award-Stufen bleiben zentral beim Admin-Board; die Demo behauptet keine öffentliche oder automatische Verarbeitung von Kunden- bzw. Nachweisdaten. | erfüllt |
+| Interne Sicht | Die bestehende interne Vorschau bleibt separat erreichbar und ist aus Landingpage und Kunden-Demo verlinkt. | erfüllt |
+
+**Prüfregel:** Die statische Vorschau ist fachlich abgenommen, wenn die Strukturtests die Seiten, Navigation, Prozesskommunikation, Bildassets, Erfolgskunden-Trennung und die Sicherheitsgrenze prüfen. Die Entscheidung über Datenbank, Sicherheit und Skalierung startet erst nach Team-Feedback zu dieser klickbaren Demo.
