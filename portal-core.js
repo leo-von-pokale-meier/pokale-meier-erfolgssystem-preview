@@ -11,6 +11,22 @@
 
   const customerStatuses = Object.freeze(['active', 'paused', 'completed']);
   const shippingModes = Object.freeze(['single', 'collective', 'pickup', 'open']);
+  const leaderboards = Object.freeze([
+    Object.freeze({ id: 'monthly-orders', label: 'Kundenaufträge · Monat', period: 'month' }),
+    Object.freeze({ id: 'yearly-orders', label: 'Kundenaufträge · Jahr', period: 'year' }),
+    Object.freeze({ id: 'all-time-orders', label: 'Kundenaufträge · Gesamt', period: 'all' })
+  ]);
+
+  function gamificationConfig() {
+    return {
+      leaderboards: leaderboards.map((board) => ({ ...board })),
+      unlockables: [
+        { id: 'first-order', label: 'Erster Kundenauftrag', status: 'konzept' },
+        { id: 'monthly-top3', label: 'Top 3 des Monats', status: 'konzept' },
+        { id: 'yearly-top3', label: 'Top 3 des Jahres', status: 'konzept' }
+      ]
+    };
+  }
 
   function text(value) {
     return typeof value === 'string' ? value.trim() : '';
@@ -38,7 +54,8 @@
       roles,
       users: [{ id: 'admin-local', name: 'Interne Administration', email: '', role: 'admin', active: true }],
       currentUserId: 'admin-local',
-      customers: []
+      customers: [],
+      gamification: gamificationConfig()
     };
   }
 
@@ -108,6 +125,7 @@
       agreement: normalizeAgreement(source.agreement),
       nextStep: text(source.nextStep),
       internalNote: text(source.internalNote),
+      salesAttribution: { ownerUserId: '', source: 'pending', orderIds: [] },
       updatedAt: new Date().toISOString()
     };
     workspace.customers.push(customer);
@@ -186,6 +204,8 @@
     roles,
     customerStatuses,
     shippingModes,
+    leaderboards,
+    gamificationConfig,
     createWorkspace,
     createCustomer,
     updateCustomer,

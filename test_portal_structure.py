@@ -40,6 +40,13 @@ class PortalStructureTests(unittest.TestCase):
         self.assertIn("roles,", self.core)
         self.assertIn("<script src=\"portal-core.js\">", self.html)
 
+    def test_gamification_is_prepared_without_fake_rankings(self):
+        for marker in ['Bestenliste', 'Kundenaufträge · Monat', 'Kundenaufträge · Jahr', 'Kundenaufträge · Gesamt', 'Platz 1', 'Freischaltbare Belohnungen']:
+            self.assertIn(marker, self.html)
+        self.assertIn('leaderboards', self.core)
+        self.assertIn('salesAttribution', self.core)
+        self.assertIn('Noch keine Datengrundlage', self.html)
+
 
 if __name__ == '__main__':
     unittest.main()
