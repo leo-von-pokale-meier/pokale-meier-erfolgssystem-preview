@@ -20,7 +20,7 @@ class PortalStructureTests(unittest.TestCase):
         }
 
     def test_public_landingpage_explains_process_and_routes_application(self):
-        for marker in ['Jetzt bewerben', 'Beratung', 'Stufenprogramm', 'Impact Frames', 'Nachweis', 'Freigabe']:
+        for marker in ['Jetzt bewerben', 'Impact Frames', 'Zielbild: Dein Weg zum Leuchtfeuer', 'zielbild-leuchtfeuer-1-1.webp']:
             self.assertIn(marker, self.landing)
         self.assertIn('https://www.pokale-meier.de/impact-frames', self.landing)
         self.assertIn('Dein Einstieg', self.landing)
