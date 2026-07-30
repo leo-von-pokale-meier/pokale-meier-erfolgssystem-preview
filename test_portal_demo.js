@@ -40,6 +40,18 @@ test('journey, awards, customers and referrals expose the required flows', () =>
   assert.match(render('recommendationsOwn'), /Eigene Empfehlungen aufbauen/);
 });
 
+test('partner and knowledge areas are usable demo modules instead of placeholders', () => {
+  const partners = render('partners');
+  for (const marker of ['Partnerprofil', 'Gemeinsamen Erfolg dokumentieren', 'Partnerstatus']) assert.match(partners, new RegExp(marker));
+  const knowledge = render('knowledge');
+  for (const marker of ['Wissensspeicher', 'Wissen festhalten', 'Freigegebenes Wissen']) assert.match(knowledge, new RegExp(marker));
+});
+
+test('own referrals provide a usable guide and separate evidence flow', () => {
+  const html = render('recommendationsOwn');
+  for (const marker of ['Empfehlungsgespräch vorbereiten', 'Gewonnene Empfehlung dokumentieren', 'Empfehlung hinzufügen']) assert.match(html, new RegExp(marker));
+});
+
 test('internal view is a distinct control cockpit', () => {
   const html = render('admin');
   for (const marker of ['Internes Board','Programm veröffentlichen','Kunden-Radar','TL;DV','Audit-Log']) assert.match(html, new RegExp(marker));
