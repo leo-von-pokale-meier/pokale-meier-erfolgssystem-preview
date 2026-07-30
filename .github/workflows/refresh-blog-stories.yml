@@ -1,0 +1,33 @@
+name: Aktualisiere Blog-Story-Kacheln
+
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-static-blog-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Aktuelle Blog-Kacheln erzeugen
+        run: python scripts/sync_blog_stories.py
+      - name: Nur Änderungen veröffentlichen
+        run: |
+          if git diff --quiet -- blog-stories.js; then
+            echo "Keine neuen Blog-Storys gefunden."
+            exit 0
+          fi
+          git config user.name "pokale-meier-preview-bot"
+          git config user.email "actions@github.com"
+          git add blog-stories.js
+          git commit -m "Aktualisiere Blog-Story-Kacheln"
+          git push
