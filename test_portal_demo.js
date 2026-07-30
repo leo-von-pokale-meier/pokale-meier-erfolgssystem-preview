@@ -37,6 +37,7 @@ test('journey, awards, customers and referrals expose the required flows', () =>
   assert.match(render('league'), /Impact League/);
   assert.match(render('recommendations'), /Empfehlung eintragen/);
   assert.match(render('recommendations'), /Eigene Empfehlungen aufbauen/);
+  assert.match(render('recommendationsOwn'), /Eigene Empfehlungen aufbauen/);
 });
 
 test('internal view is a distinct control cockpit', () => {
